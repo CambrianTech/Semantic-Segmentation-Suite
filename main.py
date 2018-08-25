@@ -396,7 +396,7 @@ if args.mode == "train":
                 if one_hot:
                     gt = helpers.reverse_one_hot(helpers.one_hot_it(gt, label_values))
                 else:
-                    gt = np.expand_dims(np.float32(gt), axis=0)/255.0
+                    gt = np.expand_dims(np.float32(gt[:args.crop_height, :args.crop_width]),axis=0)/255.0
 
                 # st = time.time()
 
