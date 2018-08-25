@@ -129,6 +129,19 @@ def load_image(path):
     image = cv2.cvtColor(cv2.imread(path,-1), cv2.COLOR_BGR2RGB)
     return image
 
+def get_output(output_image, num_classes, one_hot):
+    output_image = np.array(output_image[0,:,:,:])
+    if one_hot:
+        output_image = helpers.reverse_one_hot(output_image)
+        out_vis_image = helpers.colour_code_segmentation(output_image, label_values)
+        out_vis_image = cv2.cvtColor(np.uint8(out_vis_image), cv2.COLOR_RGB2BGR)
+    else:
+        if num_classes > 3:
+            output_image = output_image[:,:,:3]
+        out_vis_image = np.uint8(output_image)
+
+    return output_image, out_vis_image
+
 def data_augmentation(input_image, output_image):
     # Data augmentation
     input_image, output_image = utils.random_crop(input_image, output_image, args.crop_height, args.crop_width)
@@ -387,13 +400,7 @@ if args.mode == "train":
 
                 output_image = sess.run(network,feed_dict={net_input:input_image})
                 
-
-                output_image = np.array(output_image[0,:,:,:])
-                if one_hot:
-                    output_image = helpers.reverse_one_hot(output_image)
-                    out_vis_image = helpers.colour_code_segmentation(output_image, label_values)
-                else:
-                    out_vis_image = output_image
+                output_image, out_vis_image = get_output(output_image, num_classes, one_hot)
 
                 accuracy, class_accuracies, prec, rec, f1, iou = utils.evaluate_segmentation(pred=output_image, label=gt, num_classes=num_classes)
             
@@ -503,12 +510,7 @@ elif args.mode == "test":
 
         run_times_list.append(time.time()-st)
 
-        output_image = np.array(output_image[0,:,:,:])
-        if one_hot:
-            output_image = helpers.reverse_one_hot(output_image)
-            out_vis_image = helpers.colour_code_segmentation(output_image, label_values)
-        else:
-            out_vis_image = output_image
+        output_image, out_vis_image = get_output(output_image, num_classes, one_hot)
 
         accuracy, class_accuracies, prec, rec, f1, iou = utils.evaluate_segmentation(pred=output_image, label=gt, num_classes=num_classes)
     
@@ -572,16 +574,10 @@ elif args.mode == "predict":
 
     run_time = time.time()-st
 
-    output_image = np.array(output_image[0,:,:,:])
-
-    if one_hot:
-        output_image = helpers.reverse_one_hot(output_image)
-        out_vis_image = helpers.colour_code_segmentation(output_image, label_values)
-    else:
-        out_vis_image = output_image
+    output_image, out_vis_image = get_output(output_image, num_classes, one_hot)
 
     file_name = utils.filepath_to_name(args.image)
-    cv2.imwrite("%s/%s_pred.png"%("Test", file_name),cv2.cvtColor(np.uint8(out_vis_image), cv2.COLOR_RGB2BGR))
+    cv2.imwrite("%s/%s_pred.png"%("Test", file_name), out_vis_image)
 
     print("")
     print("Finished!")
