@@ -173,7 +173,7 @@ if not validate_arguments(args):
 
 # Get the names of the classes so we can record the evaluation results
 one_hot = False
-class_names_string = args.label_type
+class_names_string = "Images of type " + args.label_type
 
 if args.label_type == "classification":
     class_names_list, label_values = helpers.get_label_info(os.path.join(args.dataset, "class_dict.csv"))
@@ -376,7 +376,7 @@ if args.mode == "train":
             saver.save(sess,"%s/%04d/model.ckpt"%("checkpoints",epoch))
 
 
-        if False and epoch % args.validation_step == 0:
+        if epoch % args.validation_step == 0:
             print("Performing validation")
             target=open("%s/%04d/val_scores.csv"%("checkpoints",epoch),'w')
             target.write("val_name, avg_accuracy, precision, recall, f1 score, mean iou, %s\n" % (class_names_string))
@@ -397,6 +397,8 @@ if args.mode == "train":
                 gt = load_image(val_output_names[ind])[:args.crop_height, :args.crop_width]
                 if one_hot:
                     gt = helpers.reverse_one_hot(helpers.one_hot_it(gt, label_values))
+                else:
+                    gt = np.float32(gt)/255.0
 
                 # st = time.time()
 
@@ -404,7 +406,7 @@ if args.mode == "train":
                 
                 output_image, out_vis_image = get_output(output_image, num_classes, one_hot)
 
-                accuracy, class_accuracies, prec, rec, f1, iou = utils.evaluate_segmentation(pred=output_image, label=gt, num_classes=num_classes)
+                accuracy, class_accuracies, prec, rec, f1, iou = utils.evaluate_segmentation(pred=output_image, label=gt, num_classes=num_classes, one_hot=one_hot)
             
                 file_name = utils.filepath_to_name(val_input_names[ind])
                 target.write("%s, %f, %f, %f, %f, %f"%(file_name, accuracy, prec, rec, f1, iou))
@@ -419,7 +421,8 @@ if args.mode == "train":
                 f1_list.append(f1)
                 iou_list.append(iou)
                 
-                gt = helpers.colour_code_segmentation(gt, label_values)
+                if one_hot:
+                    gt = helpers.colour_code_segmentation(gt, label_values)
      
                 file_name = os.path.basename(val_input_names[ind])
                 file_name = os.path.splitext(file_name)[0]
@@ -499,13 +502,15 @@ elif args.mode == "test":
 
     # Run testing on ALL test images
     for ind in range(len(val_input_names)):
-        sys.stdout.write("\rRunning test image %d / %d"%(ind+1, len(val_input_names)))
+        sys.stdout.write("\rRunning test image %d / %d\n"%(ind+1, len(val_input_names)))
         sys.stdout.flush()
 
         input_image = np.expand_dims(np.float32(load_image(val_input_names[ind])[:args.crop_height, :args.crop_width]),axis=0)/255.0
         gt = load_image(val_output_names[ind])[:args.crop_height, :args.crop_width]
         if one_hot:
             gt = helpers.reverse_one_hot(helpers.one_hot_it(gt, label_values))
+        else:
+            gt = np.float32(gt)/255.0
 
         st = time.time()
         output_image = sess.run(network,feed_dict={net_input:input_image})
@@ -514,7 +519,7 @@ elif args.mode == "test":
 
         output_image, out_vis_image = get_output(output_image, num_classes, one_hot)
 
-        accuracy, class_accuracies, prec, rec, f1, iou = utils.evaluate_segmentation(pred=output_image, label=gt, num_classes=num_classes)
+        accuracy, class_accuracies, prec, rec, f1, iou = utils.evaluate_segmentation(pred=output_image, label=gt, num_classes=num_classes, one_hot=one_hot)
     
         file_name = utils.filepath_to_name(val_input_names[ind])
         target.write("%s, %f, %f, %f, %f, %f"%(file_name, accuracy, prec, rec, f1, iou))
@@ -529,7 +534,8 @@ elif args.mode == "test":
         f1_list.append(f1)
         iou_list.append(iou)
         
-        gt = helpers.colour_code_segmentation(gt, label_values)
+        if one_hot:
+            gt = helpers.colour_code_segmentation(gt, label_values)
 
         cv2.imwrite("%s/%s_pred.png"%("Val", file_name),cv2.cvtColor(np.uint8(out_vis_image), cv2.COLOR_RGB2BGR))
         cv2.imwrite("%s/%s_gt.png"%("Val", file_name),cv2.cvtColor(np.uint8(gt), cv2.COLOR_RGB2BGR))

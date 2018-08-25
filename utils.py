@@ -202,18 +202,25 @@ def compute_mean_iou(pred, label):
     return mean_iou
 
 
-def evaluate_segmentation(pred, label, num_classes, score_averaging="weighted"):
+def evaluate_segmentation(pred, label, num_classes, one_hot, score_averaging="weighted"):
+
     flat_pred = pred.flatten()
     flat_label = label.flatten()
 
     global_accuracy = compute_global_accuracy(flat_pred, flat_label)
-    class_accuracies = compute_class_accuracies(flat_pred, flat_label, num_classes)
-
-    prec = precision_score(flat_pred, flat_label, average=score_averaging)
-    rec = recall_score(flat_pred, flat_label, average=score_averaging)
-    f1 = f1_score(flat_pred, flat_label, average=score_averaging)
-
     iou = compute_mean_iou(flat_pred, flat_label)
+
+    if one_hot:
+        class_accuracies = compute_class_accuracies(flat_pred, flat_label, num_classes)
+
+        prec = precision_score(flat_pred, flat_label, average=score_averaging)
+        rec = recall_score(flat_pred, flat_label, average=score_averaging)
+        f1 = f1_score(flat_pred, flat_label, average=score_averaging)
+    else:
+        class_accuracies = [0.0]
+        prec = 0.0   
+        rec = 0.0
+        f1 = 0.0     
 
     return global_accuracy, class_accuracies, prec, rec, f1, iou
 
