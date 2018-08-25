@@ -376,7 +376,7 @@ if args.mode == "train":
             saver.save(sess,"%s/%04d/model.ckpt"%("checkpoints",epoch))
 
 
-        if False && epoch % args.validation_step == 0:
+        if False and epoch % args.validation_step == 0:
             print("Performing validation")
             target=open("%s/%04d/val_scores.csv"%("checkpoints",epoch),'w')
             target.write("val_name, avg_accuracy, precision, recall, f1 score, mean iou, %s\n" % (class_names_string))
