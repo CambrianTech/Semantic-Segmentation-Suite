@@ -329,6 +329,8 @@ if args.mode == "train":
                     input_image = np.float32(input_image) / 255.0
                     if one_hot:
                         output_image = np.float32(helpers.one_hot_it(label=output_image, label_values=label_values))
+                    else:
+                        output_image = np.float32(output_image) / 255.0
                     
                     input_image_batch.append(np.expand_dims(input_image, axis=0))
                     output_image_batch.append(np.expand_dims(output_image, axis=0))
