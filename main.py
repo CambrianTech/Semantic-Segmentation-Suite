@@ -158,7 +158,6 @@ def data_augmentation(input_image, output_image):
         input_image = cv2.LUT(input_image, table)
     if args.rotation:
         angle = random.uniform(-1*args.rotation, args.rotation)
-    if args.rotation:
         M = cv2.getRotationMatrix2D((input_image.shape[1]//2, input_image.shape[0]//2), angle, 1.0)
         input_image = cv2.warpAffine(input_image, M, (input_image.shape[1], input_image.shape[0]), flags=cv2.INTER_NEAREST)
         output_image = cv2.warpAffine(output_image, M, (output_image.shape[1], output_image.shape[0]), flags=cv2.INTER_NEAREST)
@@ -324,7 +323,6 @@ if args.mode == "train":
                 with tf.device('/cpu:0'):
                     input_image, output_image = data_augmentation(input_image, output_image)
 
-
                     # Prep the data. Make sure the labels are in one-hot format
                     input_image = np.float32(input_image) / 255.0
                     if one_hot:
@@ -398,7 +396,7 @@ if args.mode == "train":
                 if one_hot:
                     gt = helpers.reverse_one_hot(helpers.one_hot_it(gt, label_values))
                 else:
-                    gt = np.float32(gt)/255.0
+                    gt = np.expand_dims(np.float32(gt)/255.0)
 
                 # st = time.time()
 
