@@ -69,8 +69,31 @@ def validate_arguments(args):
         elif not os.path.isfile(args.image):
             print("Error: image file does not exist at path %s" % args.image)
             return False
+
     return True
 
+def print_summary(args, num_classes, class_names_string):
+
+    print("\n\n###############################################")
+    print("METHOD -->", args.mode)
+    print("Dataset -->", args.dataset)
+    print("Model -->", args.model)
+    print("Label Type -->", args.label_type)
+    print("Crop Height -->", args.crop_height)
+    print("Crop Width -->", args.crop_width)
+    print("Num Epochs -->", args.num_epochs)
+    print("Batch Size -->", args.batch_size)
+    print("Num Classes -->", num_classes)
+    print(class_names_string)
+
+    if args.mode == "train":
+        print("\nData Augmentation:")
+        print("\tVertical Flip -->", args.v_flip)
+        print("\tHorizontal Flip -->", args.h_flip)
+        print("\tBrightness Alteration -->", args.brightness)
+        print("\tRotation -->", args.rotation)
+        print("")
+    print("\n###############################################\n\n")
 
 # Get a list of the training, validation, and testing file paths
 def prepare_data(dataset_dir=args.dataset):
@@ -137,6 +160,7 @@ if not validate_arguments(args):
 
 # Get the names of the classes so we can record the evaluation results
 one_hot = False
+class_names_string = args.label_type
 
 if args.label_type == "classification":
     class_names_list, label_values = helpers.get_label_info(os.path.join(args.dataset, "class_dict.csv"))
@@ -154,7 +178,7 @@ elif args.label_type == "rgb":
 elif args.label_type == "bw":
     num_classes = 1
 
-
+print_summary(args, num_classes, class_names_string)
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -246,22 +270,6 @@ print("Loading the data ...")
 train_input_names,train_output_names, val_input_names, val_output_names, test_input_names, test_output_names = prepare_data()
 
 if args.mode == "train":
-
-    print("\n***** Begin training *****")
-    print("Dataset -->", args.dataset)
-    print("Model -->", args.model)
-    print("Crop Height -->", args.crop_height)
-    print("Crop Width -->", args.crop_width)
-    print("Num Epochs -->", args.num_epochs)
-    print("Batch Size -->", args.batch_size)
-    print("Num Classes -->", num_classes)
-
-    print("Data Augmentation:")
-    print("\tVertical Flip -->", args.v_flip)
-    print("\tHorizontal Flip -->", args.h_flip)
-    print("\tBrightness Alteration -->", args.brightness)
-    print("\tRotation -->", args.rotation)
-    print("")
 
     avg_loss_per_epoch = []
 
@@ -460,13 +468,6 @@ if args.mode == "train":
     plt.savefig('loss_vs_epochs.png')
 
 elif args.mode == "test":
-    print("\n***** Begin testing *****")
-    print("Dataset -->", args.dataset)
-    print("Model -->", args.model)
-    print("Crop Height -->", args.crop_height)
-    print("Crop Width -->", args.crop_width)
-    print("Num Classes -->", num_classes)
-    print("")
 
     # Create directories if needed
     if not os.path.isdir("%s"%("Val")):
@@ -545,15 +546,6 @@ elif args.mode == "predict":
 
     if args.image is None:
         ValueError("You must pass an image path when using prediction mode.")
-
-    print("\n***** Begin prediction *****")
-    print("Dataset -->", args.dataset)
-    print("Model -->", args.model)
-    print("Crop Height -->", args.crop_height)
-    print("Crop Width -->", args.crop_width)
-    print("Num Classes -->", num_classes)
-    print("Image -->", args.image)
-    print("")
     
     sys.stdout.write("Testing image " + args.image)
     sys.stdout.flush()
@@ -573,9 +565,6 @@ elif args.mode == "predict":
 
     output_image = np.array(output_image[0,:,:,:])
     output_image = helpers.reverse_one_hot(output_image)
-
-    # this needs to get generalized
-    class_names_list, label_values = helpers.get_label_info(os.path.join(args.dataset, "class_dict.csv"))
 
     out_vis_image = helpers.colour_code_segmentation(output_image, label_values)
     file_name = utils.filepath_to_name(args.image)
