@@ -57,6 +57,7 @@ parser.add_argument('--model', type=str, default="FC-DenseNet56", help='The mode
     FC-DenseNet56, FC-DenseNet67, FC-DenseNet103, Encoder-Decoder, Encoder-Decoder-Skip, RefineNet-Res50, RefineNet-Res101, RefineNet-Res152, \
     FRRN-A, FRRN-B, MobileUNet, MobileUNet-Skip, PSPNet-Res50, PSPNet-Res101, PSPNet-Res152, GCN-Res50, GCN-Res101, GCN-Res152, DeepLabV3-Res50 \
     DeepLabV3-Res101, DeepLabV3-Res152, DeepLabV3_plus-Res50, DeepLabV3_plus-Res101, DeepLabV3_plus-Res152, AdapNet, custom')
+parser.add_argument('--label_type', type=str, default="classification", help='The image label type. Currently supports: classification (aka semantic segmentation), rgb (full color result), bw (grayscale result)')
 args = parser.parse_args()
 
 def validate_arguments(args):
@@ -135,15 +136,25 @@ if not validate_arguments(args):
     exit()
 
 # Get the names of the classes so we can record the evaluation results
-class_names_list, label_values = helpers.get_label_info(os.path.join(args.dataset, "class_dict.csv"))
-class_names_string = ""
-for class_name in class_names_list:
-    if not class_name == class_names_list[-1]:
-        class_names_string = class_names_string + class_name + ", "
-    else:
-        class_names_string = class_names_string + class_name
+one_hot = False
 
-num_classes = len(label_values)
+if args.label_type == "classification":
+    class_names_list, label_values = helpers.get_label_info(os.path.join(args.dataset, "class_dict.csv"))
+    class_names_string = ""
+    for class_name in class_names_list:
+        if not class_name == class_names_list[-1]:
+            class_names_string = class_names_string + class_name + ", "
+        else:
+            class_names_string = class_names_string + class_name
+
+    num_classes = len(label_values)
+    one_hot = True
+elif args.label_type == "rgb":
+    num_classes = 3
+elif args.label_type == "bw":
+    num_classes = 1
+
+
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -162,8 +173,7 @@ if "Res152" in args.model and not os.path.isfile("models/resnet_v2_152.ckpt"):
 # Compute your softmax cross entropy loss
 print("Preparing the model ...")
 net_input = tf.placeholder(tf.float32,shape=[None,None,None,3])
-net_output = tf.placeholder(tf.float32,shape=[None,None,None,num_classes]) 
-
+net_output = tf.placeholder(tf.float32,shape=[None,None,None,num_classes])
 
 network = None
 init_fn = None
