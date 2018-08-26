@@ -9,7 +9,6 @@ import random
 import os, sys
 import subprocess
 
-
 import helpers 
 import utils 
 
@@ -95,33 +94,26 @@ def print_summary(args, num_classes, class_names_string):
         print("")
     print("\n###############################################\n\n")
 
+def get_image_paths(path):
+    file_names=[]
+    for file in os.listdir(path):
+        file_path = os.path.join(path, file)
+        if is_valid_image(file_path):
+            file_names.append(file_path)
+
+    file_names.sort()
+
+    return file_names
+
 # Get a list of the training, validation, and testing file paths
 def prepare_data(dataset_dir=args.dataset):
-    train_input_names=[]
-    train_output_names=[]
-    val_input_names=[]
-    val_output_names=[]
-    test_input_names=[]
-    test_output_names=[]
-    for file in os.listdir(dataset_dir + "/train"):
-        cwd = os.getcwd()
-        train_input_names.append(cwd + "/" + dataset_dir + "/train/" + file)
-    for file in os.listdir(dataset_dir + "/train_labels"):
-        cwd = os.getcwd()
-        train_output_names.append(cwd + "/" + dataset_dir + "/train_labels/" + file)
-    for file in os.listdir(dataset_dir + "/val"):
-        cwd = os.getcwd()
-        val_input_names.append(cwd + "/" + dataset_dir + "/val/" + file)
-    for file in os.listdir(dataset_dir + "/val_labels"):
-        cwd = os.getcwd()
-        val_output_names.append(cwd + "/" + dataset_dir + "/val_labels/" + file)
-    for file in os.listdir(dataset_dir + "/test"):
-        cwd = os.getcwd()
-        test_input_names.append(cwd + "/" + dataset_dir + "/test/" + file)
-    for file in os.listdir(dataset_dir + "/test_labels"):
-        cwd = os.getcwd()
-        test_output_names.append(cwd + "/" + dataset_dir + "/test_labels/" + file)
-    train_input_names.sort(),train_output_names.sort(), val_input_names.sort(), val_output_names.sort(), test_input_names.sort(), test_output_names.sort()
+    train_input_names=get_image_paths(dataset_dir + "/train")
+    train_output_names=get_image_paths(dataset_dir + "/train_labels")
+    val_input_names=get_image_paths(dataset_dir + "/val")
+    val_output_names=get_image_paths(dataset_dir + "/val_labels")
+    test_input_names=get_image_paths(dataset_dir + "/test")
+    test_output_names=get_image_paths(dataset_dir + "/test_labels")
+
     return train_input_names,train_output_names, val_input_names, val_output_names, test_input_names, test_output_names
 
 

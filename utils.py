@@ -5,6 +5,7 @@ import tensorflow.contrib.slim as slim
 import numpy as np
 import time, datetime
 import os, random
+from PIL import Image
 from scipy.misc import imread
 import ast
 from sklearn.metrics import precision_score, \
@@ -28,6 +29,12 @@ def LOG(X, f=None):
     else:
         f.write(time_stamp + " " + X)
 
+def is_valid_image(path):
+    try:
+        Image.open(path)
+    except IOError:
+        return False
+    return True
 
 # Count total number of parameters in the model
 def count_params():
