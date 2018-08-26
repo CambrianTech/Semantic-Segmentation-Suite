@@ -254,8 +254,9 @@ else:
         losses = tf.nn.softmax_cross_entropy_with_logits_v2(logits=network, labels=net_output)
         loss = tf.reduce_mean(losses)
     else:
-        losses = tf.nn.sigmoid_cross_entropy_with_logits(logits=network, labels=net_output)
-        loss = tf.reduce_sum(losses)
+        logits = tf.nn.sigmoid(network)
+        losses = tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=net_output)
+        loss = tf.reduce_mean(losses)
         # losses = tf.abs(network - net_output)
         # loss = tf.reduce_mean(losses) * l1_weight
 
