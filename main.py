@@ -318,7 +318,7 @@ if args.mode == "train":
                 output_image = load_image(train_output_names[id])
 
                 with tf.device('/cpu:0'):
-                    #input_image, output_image = data_augmentation(input_image, output_image)
+                    input_image, output_image = data_augmentation(input_image, output_image)
 
                     # Prep the data. 
                     input_image = np.float32(input_image) / 255.0
