@@ -436,7 +436,7 @@ if args.mode == "train":
             print("Average per class validation accuracies for epoch # %04d:"% (epoch))
             if not class_names_list is None:
                 for index, item in enumerate(class_avg_scores):
-                print("%s = %f" % (class_names_list[index], item))
+                    print("%s = %f" % (class_names_list[index], item))
             print("Validation precision = ", avg_precision)
             print("Validation recall = ", avg_recall)
             print("Validation F1 score = ", avg_f1)
