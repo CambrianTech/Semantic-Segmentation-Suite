@@ -255,7 +255,7 @@ else:
         loss = tf.reduce_mean(losses)
     else:
         #tf.nn.sigmoid(network)
-        losses = tf.nn.sigmoid_cross_entropy_with_logits(logits=network, labels=net_output)
+        losses = -tf.nn.sigmoid_cross_entropy_with_logits(logits=network, labels=net_output)
         loss = tf.reduce_mean(losses)
         # losses = tf.abs(network - net_output)
         # loss = tf.reduce_mean(losses) * l1_weight
