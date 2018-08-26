@@ -109,6 +109,7 @@ def prepare_data(dataset_dir=args.dataset):
     for file in os.listdir(dataset_dir + "/train_labels"):
         cwd = os.getcwd()
         train_output_names.append(cwd + "/" + dataset_dir + "/train_labels/" + file)
+        print(file)
     for file in os.listdir(dataset_dir + "/val"):
         cwd = os.getcwd()
         val_input_names.append(cwd + "/" + dataset_dir + "/val/" + file)
@@ -323,7 +324,7 @@ if args.mode == "train":
                 with tf.device('/cpu:0'):
                     input_image, output_image = data_augmentation(input_image, output_image)
 
-                    # Prep the data. Make sure the labels are in one-hot format
+                    # Prep the data. 
                     input_image = np.float32(input_image) / 255.0
                     if one_hot:
                         output_image = np.float32(helpers.one_hot_it(label=output_image, label_values=label_values))
