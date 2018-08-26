@@ -328,12 +328,12 @@ if args.mode == "train":
                     input_image, output_image = data_augmentation(input_image, output_image)
 
                     # Prep the data. 
-                    input_image = np.float32(input_image) / 127.5 - 1.0
+                    input_image = np.float32(input_image) / 255.0
 
                     if one_hot:
                         output_image = np.float32(helpers.one_hot_it(label=output_image, label_values=label_values))
                     else:
-                        output_image = np.float32(output_image) / 127.5 - 1.0
+                        output_image = np.float32(output_image) / 255.0
                     
                     input_image_batch.append(np.expand_dims(input_image, axis=0))
                     output_image_batch.append(np.expand_dims(output_image, axis=0))
@@ -394,13 +394,13 @@ if args.mode == "train":
             # Do the validation on a small set of validation images
             for ind in val_indices:
                 
-                input_image = np.expand_dims(np.float32(load_image(val_input_names[ind])[:args.crop_height, :args.crop_width]),axis=0) / 127.5 - 1.0
+                input_image = np.expand_dims(np.float32(load_image(val_input_names[ind])[:args.crop_height, :args.crop_width]),axis=0) / 255.0
                 gt_image = load_image(val_output_names[ind])[:args.crop_height, :args.crop_width]
 
                 if one_hot:
                     gt = helpers.reverse_one_hot(helpers.one_hot_it(gt_image, label_values))
                 else:
-                    gt = np.expand_dims(np.float32(gt_image[:args.crop_height, :args.crop_width]),axis=0) / 127.5 - 1.0
+                    gt = np.expand_dims(np.float32(gt_image[:args.crop_height, :args.crop_width]),axis=0) / 255.0
 
                 # st = time.time()
 
