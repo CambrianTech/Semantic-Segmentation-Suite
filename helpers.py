@@ -70,7 +70,6 @@ def one_hot_it(label, label_values):
         semantic_map.append(class_map)
     semantic_map = np.stack(semantic_map, axis=-1)
 
-    print("one_hot_it called")
     # print("Time 2 = ", time.time() - st)
 
     return semantic_map
@@ -97,8 +96,6 @@ def reverse_one_hot(image):
     #     for j in range(0, h):
     #         index, value = max(enumerate(image[i, j, :]), key=operator.itemgetter(1))
     #         x[i, j] = index
-
-    print("reverse_one_hot called")
 
     x = np.argmax(image, axis = -1)
     return x
