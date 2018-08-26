@@ -109,7 +109,6 @@ def prepare_data(dataset_dir=args.dataset):
     for file in os.listdir(dataset_dir + "/train_labels"):
         cwd = os.getcwd()
         train_output_names.append(cwd + "/" + dataset_dir + "/train_labels/" + file)
-        print(file)
     for file in os.listdir(dataset_dir + "/val"):
         cwd = os.getcwd()
         val_input_names.append(cwd + "/" + dataset_dir + "/val/" + file)
@@ -127,6 +126,7 @@ def prepare_data(dataset_dir=args.dataset):
 
 
 def load_image(path):
+    print(path)
     image = cv2.cvtColor(cv2.imread(path,-1), cv2.COLOR_BGR2RGB)
     return image
 
