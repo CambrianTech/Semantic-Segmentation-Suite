@@ -309,7 +309,7 @@ if args.mode == "train":
             for j in range(args.batch_size):
                 index = i*args.batch_size + j
                 id = id_list[index]
-                print("Learning ", os.path.basename(train_input_names[id]), os.path.basename(train_output_names[id]))
+                # print("Learning ", os.path.basename(train_input_names[id]), os.path.basename(train_output_names[id]))
                 input_image = load_image(train_input_names[id])
                 output_image = load_image(train_output_names[id])
 
@@ -372,14 +372,12 @@ if args.mode == "train":
             target=open("%s/%04d/val_scores.csv"%("checkpoints",epoch),'w')
             target.write("val_name, avg_accuracy, precision, recall, f1 score, mean iou, %s\n" % (class_names_string))
 
-
             scores_list = []
             class_scores_list = []
             precision_list = []
             recall_list = []
             f1_list = []
             iou_list = []
-
 
             # Do the validation on a small set of validation images
             for ind in val_indices:
@@ -414,6 +412,8 @@ if args.mode == "train":
                 
                 if one_hot:
                     gt = helpers.colour_code_segmentation(gt, label_values)
+                else:
+                    gt = np.uint8(gt)
      
                 file_name = os.path.basename(val_input_names[ind])
                 file_name = os.path.splitext(file_name)[0]
@@ -527,6 +527,8 @@ elif args.mode == "test":
         
         if one_hot:
             gt = helpers.colour_code_segmentation(gt, label_values)
+        else:
+            gt = np.uint8(gt)
 
         cv2.imwrite("%s/%s_pred.png"%("Val", file_name),cv2.cvtColor(np.uint8(out_vis_image), cv2.COLOR_RGB2BGR))
         cv2.imwrite("%s/%s_gt.png"%("Val", file_name),cv2.cvtColor(np.uint8(gt), cv2.COLOR_RGB2BGR))
