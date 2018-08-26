@@ -126,7 +126,6 @@ def prepare_data(dataset_dir=args.dataset):
 
 
 def load_image(path):
-    print(path)
     image = cv2.cvtColor(cv2.imread(path,-1), cv2.COLOR_BGR2RGB)
     return image
 
@@ -318,6 +317,7 @@ if args.mode == "train":
             for j in range(args.batch_size):
                 index = i*args.batch_size + j
                 id = id_list[index]
+                print("Learning ", train_input_names[id], train_output_names[id])
                 input_image = load_image(train_input_names[id])
                 output_image = load_image(train_output_names[id])
 
