@@ -166,6 +166,8 @@ if not validate_arguments(args):
 one_hot = False
 class_names_string = "Images of type " + args.label_type
 
+class_names_list=None
+
 if args.label_type == "classification":
     class_names_list, label_values = helpers.get_label_info(os.path.join(args.dataset, "class_dict.csv"))
     class_names_string = ""
@@ -432,7 +434,8 @@ if args.mode == "train":
 
             print("\nAverage validation accuracy for epoch # %04d = %f"% (epoch, avg_score))
             print("Average per class validation accuracies for epoch # %04d:"% (epoch))
-            for index, item in enumerate(class_avg_scores):
+            if not class_names_list is None:
+                for index, item in enumerate(class_avg_scores):
                 print("%s = %f" % (class_names_list[index], item))
             print("Validation precision = ", avg_precision)
             print("Validation recall = ", avg_recall)
@@ -542,8 +545,9 @@ elif args.mode == "test":
     avg_time = np.mean(run_times_list)
     print("Average test accuracy = ", avg_score)
     print("Average per class test accuracies = \n")
-    for index, item in enumerate(class_avg_scores):
-        print("%s = %f" % (class_names_list[index], item))
+    if not class_names_list is None:
+        for index, item in enumerate(class_avg_scores):
+            print("%s = %f" % (class_names_list[index], item))
     print("Average precision = ", avg_precision)
     print("Average recall = ", avg_recall)
     print("Average F1 score = ", avg_f1)
