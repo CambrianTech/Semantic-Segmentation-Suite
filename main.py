@@ -205,6 +205,8 @@ print("Preparing the model ...")
 net_input = tf.placeholder(tf.float32,shape=[None,None,None,3])
 net_output = tf.placeholder(tf.float32,shape=[None,None,None,num_classes])
 
+l1_weight = 100.0
+
 network = None
 init_fn = None
 if args.model == "FC-DenseNet56" or args.model == "FC-DenseNet67" or args.model == "FC-DenseNet103":
@@ -250,11 +252,12 @@ if args.class_balancing:
 else:
     if one_hot:
         losses = tf.nn.softmax_cross_entropy_with_logits_v2(logits=network, labels=net_output)
+        loss = tf.reduce_mean(losses)
     else:
         # losses = tf.nn.sigmoid_cross_entropy_with_logits(logits=network, labels=net_output)
-        losses = tf.abs(net_input - net_output)
+        losses = tf.abs(network - net_output)
+        loss = tf.reduce_mean(losses) * l1_weight
 
-loss = tf.reduce_mean(losses)
 
 opt = tf.train.AdamOptimizer(0.0001).minimize(loss, var_list=[var for var in tf.trainable_variables()])
 
