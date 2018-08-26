@@ -383,11 +383,12 @@ if args.mode == "train":
             for ind in val_indices:
                 
                 input_image = np.expand_dims(np.float32(load_image(val_input_names[ind])[:args.crop_height, :args.crop_width]),axis=0)/255.0
-                gt = load_image(val_output_names[ind])[:args.crop_height, :args.crop_width]
+                gt_image = load_image(val_output_names[ind])[:args.crop_height, :args.crop_width]
+
                 if one_hot:
-                    gt = helpers.reverse_one_hot(helpers.one_hot_it(gt, label_values))
+                    gt = helpers.reverse_one_hot(helpers.one_hot_it(gt_image, label_values))
                 else:
-                    gt = np.expand_dims(np.float32(gt[:args.crop_height, :args.crop_width]),axis=0)/255.0
+                    gt = np.expand_dims(np.float32(gt_image[:args.crop_height, :args.crop_width]),axis=0)/255.0
 
                 # st = time.time()
 
@@ -411,14 +412,12 @@ if args.mode == "train":
                 iou_list.append(iou)
                 
                 if one_hot:
-                    gt = helpers.colour_code_segmentation(gt, label_values)
-                else:
-                    gt = np.uint8(gt)
+                    gt_image = helpers.colour_code_segmentation(gt, label_values)
      
                 file_name = os.path.basename(val_input_names[ind])
                 file_name = os.path.splitext(file_name)[0]
                 cv2.imwrite("%s/%04d/%s_pred.png"%("checkpoints",epoch, file_name),cv2.cvtColor(np.uint8(out_vis_image), cv2.COLOR_RGB2BGR))
-                cv2.imwrite("%s/%04d/%s_gt.png"%("checkpoints",epoch, file_name),cv2.cvtColor(np.uint8(gt), cv2.COLOR_RGB2BGR))
+                cv2.imwrite("%s/%04d/%s_gt.png"%("checkpoints",epoch, file_name),cv2.cvtColor(np.uint8(gt_image), cv2.COLOR_RGB2BGR))
 
 
             target.close()
@@ -497,11 +496,11 @@ elif args.mode == "test":
         sys.stdout.flush()
 
         input_image = np.expand_dims(np.float32(load_image(val_input_names[ind])[:args.crop_height, :args.crop_width]),axis=0)/255.0
-        gt = load_image(val_output_names[ind])[:args.crop_height, :args.crop_width]
+        gt_image = load_image(val_output_names[ind])[:args.crop_height, :args.crop_width]
         if one_hot:
-            gt = helpers.reverse_one_hot(helpers.one_hot_it(gt, label_values))
+            gt = helpers.reverse_one_hot(helpers.one_hot_it(gt_image, label_values))
         else:
-            gt = np.expand_dims(np.float32(gt[:args.crop_height, :args.crop_width]),axis=0)/255.0
+            gt = np.expand_dims(np.float32(gt_image[:args.crop_height, :args.crop_width]),axis=0)/255.0
 
         st = time.time()
         output_image = sess.run(network,feed_dict={net_input:input_image})
@@ -526,9 +525,7 @@ elif args.mode == "test":
         iou_list.append(iou)
         
         if one_hot:
-            gt = helpers.colour_code_segmentation(gt, label_values)
-        else:
-            gt = np.uint8(gt)
+            gt_image = helpers.colour_code_segmentation(gt, label_values)
 
         cv2.imwrite("%s/%s_pred.png"%("Val", file_name),cv2.cvtColor(np.uint8(out_vis_image), cv2.COLOR_RGB2BGR))
         cv2.imwrite("%s/%s_gt.png"%("Val", file_name),cv2.cvtColor(np.uint8(gt), cv2.COLOR_RGB2BGR))
