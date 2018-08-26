@@ -245,10 +245,14 @@ if args.class_balancing:
     class_weights = utils.compute_class_weights(labels_dir=args.dataset + "/train_labels", label_values=label_values)
     weights = tf.reduce_sum(class_weights * net_output, axis=-1)
     unweighted_loss = None
-    unweighted_loss = tf.nn.softmax_cross_entropy_with_logits(logits=network, labels=net_output)
+    unweighted_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=network, labels=net_output)
     losses = unweighted_loss * class_weights
 else:
-    losses = tf.nn.softmax_cross_entropy_with_logits(logits=network, labels=net_output)
+    if one_hot:
+        losses = tf.nn.softmax_cross_entropy_with_logits_v2(logits=network, labels=net_output)
+    else:
+        losses = tf.nn.sigmoid_cross_entropy_with_logits(logits=network, labels=net_output)
+        
 loss = tf.reduce_mean(losses)
 
 opt = tf.train.AdamOptimizer(0.0001).minimize(loss, var_list=[var for var in tf.trainable_variables()])
