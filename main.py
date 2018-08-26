@@ -254,11 +254,8 @@ else:
         losses = tf.nn.softmax_cross_entropy_with_logits_v2(logits=network, labels=net_output)
         loss = tf.reduce_mean(losses)
     else:
-        #tf.nn.sigmoid(network)
-        losses = -tf.nn.sigmoid_cross_entropy_with_logits(logits=network, labels=net_output)
-        loss = tf.reduce_mean(losses)
-        # losses = tf.abs(network - net_output)
-        # loss = tf.reduce_mean(losses) * l1_weight
+        losses = tf.nn.sigmoid_cross_entropy_with_logits(logits=network, labels=net_output)
+        loss = tf.reduce_mean(tf.nn.sigmoid(losses))
 
 
 opt = tf.train.AdamOptimizer(0.0001).minimize(loss, var_list=[var for var in tf.trainable_variables()])
