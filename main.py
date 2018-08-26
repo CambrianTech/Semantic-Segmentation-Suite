@@ -254,7 +254,8 @@ else:
         losses = tf.nn.softmax_cross_entropy_with_logits_v2(logits=network, labels=net_output)
         loss = tf.reduce_mean(losses)
     else:
-        loss = tf.reduce_sum(tf.abs(network - net_output))
+        losses = tf.nn.softmax_cross_entropy_with_logits_v2(logits=network, labels=net_output)
+        loss = tf.reduce_mean(losses)
         # losses = tf.abs(network - net_output)
         # loss = tf.reduce_mean(losses) * l1_weight
 
