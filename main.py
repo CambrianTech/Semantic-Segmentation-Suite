@@ -255,7 +255,7 @@ else:
         loss = tf.reduce_mean(losses)
     else:
         losses = tf.nn.softmax_cross_entropy_with_logits_v2(logits=network, labels=net_output)
-        loss = tf.reduce_sum(losses) / (args.batch_size)
+        loss = tf.reduce_sum(losses) / args.batch_size
 
 
 opt = tf.train.AdamOptimizer(0.0001).minimize(loss, var_list=[var for var in tf.trainable_variables()])
