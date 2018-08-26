@@ -309,7 +309,7 @@ if args.mode == "train":
             for j in range(args.batch_size):
                 index = i*args.batch_size + j
                 id = id_list[index]
-                print("Learning ", train_input_names[id], train_output_names[id])
+                print("Learning ", os.path.basename(train_input_names[id]), os.path.basename(train_output_names[id]))
                 input_image = load_image(train_input_names[id])
                 output_image = load_image(train_output_names[id])
 
