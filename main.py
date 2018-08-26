@@ -254,7 +254,8 @@ else:
         losses = tf.nn.softmax_cross_entropy_with_logits_v2(logits=network, labels=net_output)
         loss = tf.reduce_mean(losses)
     else:
-        loss = tf.reduce_sum(tf.abs(network - net_output))
+        losses = tf.nn.sigmoid_cross_entropy_with_logits(logits=network, labels=net_output)
+        loss = tf.reduce_mean(losses)
         # losses = tf.abs(network - net_output)
         # loss = tf.reduce_mean(losses) * l1_weight
 
@@ -329,12 +330,12 @@ if args.mode == "train":
                     input_image, output_image = data_augmentation(input_image, output_image)
 
                     # Prep the data. 
-                    input_image = np.float32(input_image) / 255.0
+                    input_image = np.float32(input_image) / 127.5 - 1.0
 
                     if one_hot:
                         output_image = np.float32(helpers.one_hot_it(label=output_image, label_values=label_values))
                     else:
-                        output_image = np.float32(output_image) / 255.0
+                        output_image = np.float32(output_image) / 127.5 - 1.0
                     
                     input_image_batch.append(np.expand_dims(input_image, axis=0))
                     output_image_batch.append(np.expand_dims(output_image, axis=0))
