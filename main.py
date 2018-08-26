@@ -98,7 +98,7 @@ def get_image_paths(path):
     file_names=[]
     for file in os.listdir(path):
         file_path = os.path.join(path, file)
-        if is_valid_image(file_path):
+        if utils.is_valid_image(file_path):
             file_names.append(file_path)
 
     file_names.sort()
