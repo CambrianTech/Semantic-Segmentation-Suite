@@ -250,11 +250,13 @@ if args.class_balancing:
     unweighted_loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=network, labels=net_output)
     losses = unweighted_loss * class_weights
 else:
-    losses = tf.nn.softmax_cross_entropy_with_logits_v2(logits=network, labels=net_output)
     if one_hot:
+        losses = tf.nn.softmax_cross_entropy_with_logits_v2(logits=network, labels=net_output)
         loss = tf.reduce_mean(losses)
     else:
-        loss = tf.reduce_mean(losses)
+        loss = tf.reduce_sum(tf.abs(network - net_output))
+        # losses = tf.abs(network - net_output)
+        # loss = tf.reduce_mean(losses) * l1_weight
 
 
 opt = tf.train.AdamOptimizer(0.0001).minimize(loss, var_list=[var for var in tf.trainable_variables()])
@@ -393,13 +395,13 @@ if args.mode == "train":
             # Do the validation on a small set of validation images
             for ind in val_indices:
                 
-                input_image = np.expand_dims(np.float32(load_image(val_input_names[ind])[:args.crop_height, :args.crop_width]),axis=0) / 255.0
+                input_image = np.expand_dims(np.float32(load_image(val_input_names[ind])[:args.crop_height, :args.crop_width]),axis=0)/255.0
                 gt_image = load_image(val_output_names[ind])[:args.crop_height, :args.crop_width]
 
                 if one_hot:
                     gt = helpers.reverse_one_hot(helpers.one_hot_it(gt_image, label_values))
                 else:
-                    gt = np.expand_dims(np.float32(gt_image[:args.crop_height, :args.crop_width]),axis=0) / 255.0
+                    gt = np.expand_dims(np.float32(gt_image[:args.crop_height, :args.crop_width]),axis=0)/255.0
 
                 # st = time.time()
 
