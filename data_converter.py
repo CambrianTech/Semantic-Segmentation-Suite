@@ -76,6 +76,25 @@ from shutil import copyfile
  # --output_dir $datasets/ade20k_floors_sss \
  # --replace_colors $datasets/ADE20K_2016_07_26/just-floor.txt --min_colors=2
 
+#unreal export datasets=/Users/joelteply/Desktop/
+# python2 data_converter.py --mode train \
+# --input_dir $datasets/unreal_high/images --input_match_exp "Screenshot_*_C.png" \
+# --label_dir $datasets/unreal_high/images --label_match_exp "Screenshot_*_S.png" \
+# --output_dir $datasets/unreal_sss \
+# --replace_colors $datasets/unreal_high/replace-colors.txt --min_colors=2
+
+# python2 data_converter.py --mode test \
+# --input_dir $datasets/unreal_high/images --input_match_exp "Screenshot_*_20*_C.png" \
+# --label_dir $datasets/unreal_high/images --label_match_exp "Screenshot_*_20*_S.png" \
+# --output_dir $datasets/unreal_sss \
+# --replace_colors $datasets/unreal_high/replace-colors.txt --min_colors=2
+
+# python2 data_converter.py --mode val \
+# --input_dir $datasets/unreal_high/images --input_match_exp "Screenshot_*_30*_C.png" \
+# --label_dir $datasets/unreal_high/images --label_match_exp "Screenshot_*_30*_S.png" \
+# --output_dir $datasets/unreal_sss \
+# --replace_colors $datasets/unreal_high/replace-colors.txt --min_colors=2
+
 parser = argparse.ArgumentParser()
 
 # required together:
@@ -111,6 +130,8 @@ def getColor(input):
 def replaceColors(im, min_colors=2):
 
     h,w = im.shape[:2]
+
+    im = im[:,:,:3]
     
     # print(im[16,100])
 

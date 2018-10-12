@@ -27,6 +27,8 @@ from DeepLabV3 import build_deeplabv3
 from DeepLabV3_plus import build_deeplabv3_plus
 from AdapNet import build_adaptnet
 
+valid_colors = None
+
 def load_image(path, crop_width, crop_height):
     image = cv2.imread(path,-1)
 
@@ -45,6 +47,16 @@ def load_image(path, crop_width, crop_height):
         image = cv2.cvtColor(image, cv2.COLOR_RGBA2BGR)
     else:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    if not valid_colors is None:
+        red, green, blue = image[:,:,0], image[:,:,1], image[:,:,2]
+        total_mask = np.zeros([image.shape[0],image.shape[1]],dtype=np.uint8)
+
+        for color in valid_colors:
+            mask = (red == color[0]) & (green == color[1] && blue == color[2])
+            total_mask[mask] = 255
+
+        image[total_mask != 255] = [0,0,0]
 
     return image
 
@@ -90,6 +102,8 @@ def prepare_data(dataset_dir):
     val_output_names=[]
     test_input_names=[]
     test_output_names=[]
+    valid_colors=[]
+
     for file in os.listdir(dataset_dir + "/train"):
         train_input_names.append(dataset_dir + "/train/" + file)
     for file in os.listdir(dataset_dir + "/train_labels"):
@@ -103,6 +117,10 @@ def prepare_data(dataset_dir):
     for file in os.listdir(dataset_dir + "/test_labels"):
         test_output_names.append(dataset_dir + "/test_labels/" + file)
     train_input_names.sort(),train_output_names.sort(), val_input_names.sort(), val_output_names.sort(), test_input_names.sort(), test_output_names.sort()
+
+    valid_colors.append([255,0,0])
+    valid_colors.append([0,255,0])
+
     return train_input_names,train_output_names, val_input_names, val_output_names, test_input_names, test_output_names
 
 def build_model(model_name, net_input, num_classes, crop_width, crop_height):
