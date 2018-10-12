@@ -53,7 +53,7 @@ def load_image(path, crop_width, crop_height):
         total_mask = np.zeros([image.shape[0],image.shape[1]],dtype=np.uint8)
 
         for color in valid_colors:
-            mask = (red == color[0]) & (green == color[1] && blue == color[2])
+            mask = (red == color[0]) & (green == color[1]) && (blue == color[2])
             total_mask[mask] = 255
 
         image[total_mask != 255] = [0,0,0]
