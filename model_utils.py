@@ -48,6 +48,10 @@ def load_image(path, crop_width, crop_height):
     else:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
+    valid_colors=[]
+    valid_colors.append([255,0,0])
+    valid_colors.append([0,255,0])
+
     if not valid_colors is None:
         print("stripping bad colors")
         red, green, blue = image[:,:,0], image[:,:,1], image[:,:,2]
@@ -103,7 +107,6 @@ def prepare_data(dataset_dir):
     val_output_names=[]
     test_input_names=[]
     test_output_names=[]
-    valid_colors=[]
 
     for file in os.listdir(dataset_dir + "/train"):
         train_input_names.append(dataset_dir + "/train/" + file)
@@ -119,6 +122,7 @@ def prepare_data(dataset_dir):
         test_output_names.append(dataset_dir + "/test_labels/" + file)
     train_input_names.sort(),train_output_names.sort(), val_input_names.sort(), val_output_names.sort(), test_input_names.sort(), test_output_names.sort()
 
+    valid_colors=[]
     valid_colors.append([255,0,0])
     valid_colors.append([0,255,0])
 
