@@ -49,6 +49,7 @@ def load_image(path, crop_width, crop_height):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     if not valid_colors is None:
+        print("stripping bad colors")
         red, green, blue = image[:,:,0], image[:,:,1], image[:,:,2]
         total_mask = np.zeros([image.shape[0],image.shape[1]],dtype=np.uint8)
 
