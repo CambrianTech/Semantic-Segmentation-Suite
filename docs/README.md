@@ -155,53 +155,26 @@ Wall,64, 192, 0
 Then you can simply run `train.py`! Check out the optional command line arguments:
 
 ```
-usage: train.py [-h] [--num_epochs NUM_EPOCHS]
-                [--checkpoint_step CHECKPOINT_STEP]
-                [--validation_step VALIDATION_STEP] [--image IMAGE]
-                [--continue_training CONTINUE_TRAINING] [--dataset DATASET]
-                [--crop_height CROP_HEIGHT] [--crop_width CROP_WIDTH]
-                [--batch_size BATCH_SIZE] [--num_val_images NUM_VAL_IMAGES]
-                [--h_flip H_FLIP] [--v_flip V_FLIP] [--brightness BRIGHTNESS]
-                [--rotation ROTATION] [--model MODEL] [--frontend FRONTEND]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --num_epochs NUM_EPOCHS
-                        Number of epochs to train for
-  --checkpoint_step CHECKPOINT_STEP
-                        How often to save checkpoints (epochs)
-  --validation_step VALIDATION_STEP
-                        How often to perform validation (epochs)
-  --image IMAGE         The image you want to predict on. Only valid in
-                        "predict" mode.
-  --continue_training CONTINUE_TRAINING
-                        Whether to continue training from a checkpoint
-  --dataset DATASET     Dataset you are using.
-  --crop_height CROP_HEIGHT
-                        Height of cropped input image to network
-  --crop_width CROP_WIDTH
-                        Width of cropped input image to network
-  --batch_size BATCH_SIZE
-                        Number of images in each batch
-  --num_val_images NUM_VAL_IMAGES
-                        The number of images to used for validations
-  --h_flip H_FLIP       Whether to randomly flip the image horizontally for
-                        data augmentation
-  --v_flip V_FLIP       Whether to randomly flip the image vertically for data
-                        augmentation
-  --brightness BRIGHTNESS
-                        Whether to randomly change the image brightness for
-                        data augmentation. Specifies the max bightness change
-                        as a factor between 0.0 and 1.0. For example, 0.1
-                        represents a max brightness change of 10% (+-).
-  --rotation ROTATION   Whether to randomly rotate the image for data
-                        augmentation. Specifies the max rotation angle in
-                        degrees.
-  --model MODEL         The model you are using. See model_builder.py for
-                        supported models
-  --frontend FRONTEND   The frontend you are using. See frontend_builder.py
-                        for supported models
-
+ python train.py with 'args={}'
+ 
+usage: python train.py -m ec2-34-204-179-110.compute-1.amazonaws.com:27017:semseg \
+ with 'args={"num_epochs": 3000, \
+        "epoch_start_i": 0, \
+        "checkpoint_step": 5, \
+        "validation_step": 1, \
+        "image": None, \
+        "continue_training": False, \
+        "dataset": "../datasets/unreal_rugs_sss", \
+        "crop_height": 512, \
+        "crop_width": 512, \
+        "batch_size": 8, \
+        "num_val_images": 20, \
+        "h_flip": True, \
+        "v_flip": True, \
+        "brightness": 0.3, \
+        "rotation": 0.1, \
+        "model": "DeepLabV3_plus", \
+        "frontend": "ResNet152"}'
 ```
     
 
