@@ -33,8 +33,8 @@ print("Export path -->", args.export_path)
 # Initializing network
 sess=tf.Session()
 
-net_input = tf.placeholder(tf.float32,shape=[None,None,None,3])
-net_output = tf.placeholder(tf.float32,shape=[None,None,None,num_classes]) 
+net_input = tf.placeholder(tf.float32,shape=[None,args.crop_width,args.crop_height,3])
+net_output = tf.placeholder(tf.float32,shape=[None,args.crop_width,args.crop_height,num_classes]) 
 
 network, _ = model_builder.build_model(args.model, net_input=net_input,
                                         frontend=args.frontend,
