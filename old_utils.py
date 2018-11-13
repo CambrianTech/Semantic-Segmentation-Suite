@@ -11,7 +11,6 @@ from sklearn.metrics import precision_score, \
     recall_score, confusion_matrix, classification_report, \
     accuracy_score, f1_score
 
-import helpers
 import imghdr
 import argparse
 import glob
@@ -21,6 +20,14 @@ from scipy import misc
 import fnmatch
 import re
 import imghdr
+
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def prepare_data(dataset_dir):
     train_input_names=[]
@@ -56,15 +63,13 @@ def load_image(path):
 
 def is_valid_image(path, require_rgb=True):
     try:
-        what = imghdr.what(path)
-        if (what != None and what != "jpeg" and what != "png"):
-            return False
-
-        im=Image.open(path)
-        im.verify()
-        return not require_rgb or im.mode == "RGB"
+        file_extension = os.path.splitext(path)[1][1:].strip().lower()
+        return file_extension == "jpeg" or file_extension == "jpg" or file_extension == "png"
+        # im=Image.open(path)
+        # im.verify()
+        # return not require_rgb or im.mode == "RGB"
     except IOError:
-        # print("IOError with image " + path)
+        print("IOError with image " + path)
         return False
     return False
 

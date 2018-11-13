@@ -17,20 +17,19 @@ from scipy import misc
 import fnmatch
 import cv2
 import re
-import utils
+import old_utils as utils
 import ast
 from shutil import copyfile
 
 ## 6 categories below, three commands. Don't forget class_dict.csv!
 
  # python data_converter.py --mode train \
- # --input_dir $datasets/ADE20K_2016_07_26/images/training \
+ # --input_dir  ~/Desktop/ADE20K_2016_07_26/images/training \
  # --input_match_exp "*.jpg" \
- # --label_dir $datasets/ADE20K_2016_07_26/images/training \
+ # --label_dir ~/Desktop/ADE20K_2016_07_26/images/training \
  # --label_match_exp "*_seg.png" \
- # --output_dir $datasets/ade20k_sss \
- # --filter_categories $datasets/ADE20K_2016_07_26/indoor-categories.txt \
- # --replace_colors $datasets/ADE20K_2016_07_26/replace-all-colors.txt
+ # --output_dir ~/Desktop/ADE20K_2016_07_26/ade20k_floor_wall \
+ # --replace_colors ~/Desktop/ADE20K_2016_07_26/replace-wall-floor.txt --min_colors=3
 
  # python data_converter.py --mode val \
  # --input_dir $datasets/ADE20K_2016_07_26/images/validation \
@@ -76,23 +75,32 @@ from shutil import copyfile
  # --output_dir $datasets/ade20k_floors_sss \
  # --replace_colors $datasets/ADE20K_2016_07_26/just-floor.txt --min_colors=2
 
+ # python data_converter.py --mode train --match_hue 1 --min_area 0.1  \
+ # --input_dir $datasets/matterport/area_1/data/rgb \
+ # --input_match_exp "*.png" \
+ # --label_dir $datasets/matterport/area_1/data/semantic_pretty \
+ # --label_match_exp "*.png" \
+ # --output_dir $datasets/matterport-floor-walls/area_1 \
+ # --replace_colors $datasets/matterport/replace-floor-wall-hsv.txt --min_colors=2
+
 parser = argparse.ArgumentParser()
 
 # required together:
 parser.add_argument("--input_dir", required=True, help="Source Input Path")
 parser.add_argument("--input_match_exp", required=False, help="Source Input expression to match files")
+parser.add_argument("--output_dir", required=True, help="where to put output files")
+
 parser.add_argument("--mode", required=True, choices=["train", "test", "val"])
+parser.add_argument("--match_hue", type=utils.str2bool, nargs='?', const=True, default=False, help="Match hue only")
 
 parser.add_argument("--label_dir", required=True, help="Label Input Path")
 parser.add_argument("--label_match_exp", required=False, help="Label Input expression to match files")
 
 parser.add_argument("--filter_categories", required=False, help="Path to file with valid categories")
 parser.add_argument("--replace_colors", required=False, help="Path to file with GT color replacements. See replace-colors.txt")
-parser.add_argument("--min_colors", type=int, required=False, default=3, help="where to put output files")
+parser.add_argument("--min_colors", type=int, required=False, default=3, help="minimum number of labels to be valid")
+parser.add_argument("--min_area", type=float, default=0.0, help="Minimum area to count as a valid label")
 
-# Place to output A/B images
-parser.add_argument("--output_dir", required=True, help="where to put output files")
-parser.add_argument("--crop_size", type=int, default=512, help="crop images")
 
 a = parser.parse_args()
 
@@ -108,30 +116,46 @@ def getColor(input):
 
     return ast.literal_eval(input)
 
-def replaceColors(im, min_colors=2):
+def replaceColors(im, min_colors=2, hue_only=False, min_label_area=0.0):
 
     h,w = im.shape[:2]
-    
-    # print(im[16,100])
 
-    red, green, blue = im[:,:,0], im[:,:,1], im[:,:,2]
+    im = im[:,:,:3]
+
+    if hue_only:
+        image = Image.fromarray(np.uint8(im))
+        hue = np.asarray(image.convert('HSV'))[:,:,0]
+    else:
+        red, green, blue = im[:,:,0], im[:,:,1], im[:,:,2]
+
+    # return hue
+
+    # print(hue[int(h-1),int(w/2)])
+    # return hue
 
     default = None
     total_mask = np.zeros([h,w],dtype=np.uint8)
 
-    num_elements = 0
+    num_elements = 1
     lastZeroCount = 0
+    total_pixels = h * w
+
     for i in range(0, len(matches)):
         if matches[i] == "*":
             default = replacements[i]
         else:
             for j in range(0, len(matches[i])):
                 color_to_replace = matches[i][j]
-                mask = (red == color_to_replace[0]) & (green == color_to_replace[1])
-                im[:,:,:3][mask] = replacements[i] #codes for below
+
+                if hue_only:
+                    mask = (hue == color_to_replace[0])
+                else:
+                    mask = (red == color_to_replace[0]) & (green == color_to_replace[1])
+                im[mask] = replacements[i] #codes for below
                 total_mask[mask] = 255
                 nzCount = cv2.countNonZero(total_mask)
-                if nzCount > lastZeroCount:
+                coverage = float(nzCount) / float(total_pixels)
+                if nzCount > lastZeroCount and min_label_area == 0 or coverage >= min_label_area:
                     num_elements = num_elements + 1
                 lastZeroCount = nzCount
     
@@ -207,7 +231,7 @@ def main():
         dst_label_path = os.path.join(label_dir, label_name)
         if not a.replace_colors is None:
             image = misc.imread(label_path)
-            image = replaceColors(image, a.min_colors)
+            image = replaceColors(image, a.min_colors, a.match_hue, a.min_area)
             if image is None:
                 # print("Skipping %s" % label_name)
                 continue
