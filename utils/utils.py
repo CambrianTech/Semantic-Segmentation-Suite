@@ -25,7 +25,8 @@ def prepare_data(dataset_dir):
                 file_path = os.path.join(train_path, file)
                 train_input_names.append(file_path)
 
-        return train_input_names.sort()
+        train_input_names.sort()
+        return train_input_names
 
     train_input_names = _get_files(dataset_dir, "train", "main")
     train_output_names = _get_files(dataset_dir, "train", "segmentation")
