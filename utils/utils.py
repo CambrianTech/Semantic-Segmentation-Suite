@@ -15,31 +15,25 @@ from sklearn.metrics import precision_score, \
 from utils import helpers
 
 def prepare_data(dataset_dir):
-    train_input_names=[]
-    train_output_names=[]
-    val_input_names=[]
-    val_output_names=[]
-    test_input_names=[]
-    test_output_names=[]
-    for file in os.listdir(dataset_dir + "/train"):
-        cwd = os.getcwd()
-        train_input_names.append(cwd + "/" + dataset_dir + "/train/" + file)
-    for file in os.listdir(dataset_dir + "/train_labels"):
-        cwd = os.getcwd()
-        train_output_names.append(cwd + "/" + dataset_dir + "/train_labels/" + file)
-    for file in os.listdir(dataset_dir + "/val"):
-        cwd = os.getcwd()
-        val_input_names.append(cwd + "/" + dataset_dir + "/val/" + file)
-    for file in os.listdir(dataset_dir + "/val_labels"):
-        cwd = os.getcwd()
-        val_output_names.append(cwd + "/" + dataset_dir + "/val_labels/" + file)
-    for file in os.listdir(dataset_dir + "/test"):
-        cwd = os.getcwd()
-        test_input_names.append(cwd + "/" + dataset_dir + "/test/" + file)
-    for file in os.listdir(dataset_dir + "/test_labels"):
-        cwd = os.getcwd()
-        test_output_names.append(cwd + "/" + dataset_dir + "/test_labels/" + file)
-    train_input_names.sort(),train_output_names.sort(), val_input_names.sort(), val_output_names.sort(), test_input_names.sort(), test_output_names.sort()
+
+    def _get_files(base_path, path, name):
+        train_input_names=[]
+        train_path = os.path.join(base_path, path, name)
+
+        if os.path.isdir(train_path):
+            for file in os.listdir(train_path):
+                file_path = os.path.join(train_path, file)
+                train_input_names.append(file_path)
+
+        return train_input_names.sort()
+
+    train_input_names = _get_files(dataset_dir, "train", "main")
+    train_output_names = _get_files(dataset_dir, "train", "segmentation")
+    val_input_names = _get_files(dataset_dir, "val", "main")
+    val_output_names = _get_files(dataset_dir, "val", "segmentation")
+    test_input_names = _get_files(dataset_dir, "test", "main")
+    test_output_names = _get_files(dataset_dir, "test", "segmentation")
+
     return train_input_names,train_output_names, val_input_names, val_output_names, test_input_names, test_output_names
 
 def load_image(path, crop_width, crop_height):
