@@ -1,7 +1,7 @@
 import os, time, cv2
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 import tensorflow as tf
 import numpy as np
@@ -38,6 +38,8 @@ import matplotlib.pyplot as plt
  #        "model": "DeepLabV3_plus", \
  #        "frontend": "ResNet152"}'
 
+# python train.py with "args={'dataset':'../../Desktop/ade_mrpt', 'model':'PSPNet', 'frontend':'ResNet50'}"
+
 ex = Experiment("SemanticSegmentation")
 
 @ex.config
@@ -52,7 +54,7 @@ def sem_seg_config():
         "dataset": "../datasets/ade20k_sss",
         "crop_height": 512,
         "crop_width": 512,
-        "batch_size": 8,
+        "batch_size": 3,
         "num_val_images": 20,
         "h_flip": False,
         "v_flip": False,
@@ -104,7 +106,6 @@ def main(args, _log):
     config.gpu_options.allow_growth = True
     sess=tf.Session(config=config)
 
-
     # Compute your softmax cross entropy loss
     net_input = tf.placeholder(tf.float32,shape=[None,None,None,3])
     net_output = tf.placeholder(tf.float32,shape=[None,None,None,num_classes])
@@ -134,8 +135,6 @@ def main(args, _log):
     # Load the data
     _log.info("Loading the data ...")
     train_input_names,train_output_names, val_input_names, val_output_names, test_input_names, test_output_names = utils.prepare_data(dataset_dir=args["dataset"])
-
-
 
     _log.info("\n***** Begin training *****")
     _log.debug("Dataset -->", args["dataset"])
@@ -214,7 +213,7 @@ def main(args, _log):
             current_losses.append(current)
             cnt = cnt + args["batch_size"]
             if cnt % 20 == 0:
-                string_print = "Epoch = %d Count = %d Current_Loss = %.4f Time = %.2f"%(epoch,cnt,current,time.time()-st)
+                string_print = "Epoch = %d Count = %d Iter:(%d of %d) Current_Loss = %.4f Time = %.2f" % (epoch,cnt, i, num_iters, current,time.time()-st)
                 utils.LOG(string_print)
                 st = time.time()
 
